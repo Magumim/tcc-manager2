@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciador de TCC</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <main class="container">
+    <header>
+      <h1>Gerenciador de <span>TCC</span></h1>
+      <p>Organização do grupo.</p>
+    </header>
+
+    <section class="form-card">
+      <div class="field">
+        <label>Integrante</label>
+        <input type="text" id="nome" placeholder="Seu nome" value="Matheus">
+      </div>
+
+      <div class="field">
+        <label>Parte do TCC</label>
+        <input type="text" id="parte" placeholder="Ex: Introdução">
+      </div>
+
+      <div class="field text-area">
+        <label>Sua parte</label>
+        <textarea id="texto" placeholder="Cole sua parte aqui..."></textarea>
+      </div>
+
+      <div class="field status-field">
+        <label>Status</label>
+        <select id="status">
+          <option value="Pendente">Pendente</option>
+          <option value="Fazendo">Fazendo</option>
+          <option value="Concluído">Concluído</option>
+        </select>
+
+        <button onclick="salvarParte()">💾 Salvar parte</button>
+      </div>
+    </section>
+
+    <section class="list-section">
+      <h2>Partes cadastradas</h2>
+      <div class="underline"></div>
+
+      <div id="lista" class="lista"></div>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
