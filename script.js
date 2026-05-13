@@ -1,4 +1,45 @@
-import { db, collection, addDoc } from "./firebase.js";
+import { db, collection, addDoc, getDocs } from "./firebase.js";
+
+function criarCard(nome, parte, texto, status, dataFormatada) {
+  const lista = document.getElementById("lista");
+  const inicial = nome.charAt(0).toUpperCase();
+
+  let classeStatus = "pendente";
+
+  if (status === "Fazendo") {
+    classeStatus = "fazendo";
+  } else if (status === "Concluído") {
+    classeStatus = "concluido";
+  }
+
+  const card = document.createElement("div");
+  card.className = "item-card";
+
+  card.innerHTML = `
+    <div class="avatar">${inicial}</div>
+
+    <div class="info">
+      <h3>${nome}</h3>
+      <p>${parte}</p>
+    </div>
+
+    <div class="preview">
+      <p>${texto}</p>
+    </div>
+
+    <div class="status-area">
+      <span class="badge ${classeStatus}">${status}</span>
+      <small>📅 ${dataFormatada}</small>
+    </div>
+
+    <div class="actions">
+      <button class="edit">✏️</button>
+      <button class="delete" onclick="this.closest('.item-card').remove()">🗑️</button>
+    </div>
+  `;
+
+  lista.prepend(card);
+}
 
 async function salvarParte() {
   const nome = document.getElementById("nome").value.trim();
@@ -11,59 +52,23 @@ async function salvarParte() {
     return;
   }
 
-  const lista = document.getElementById("lista");
+  const dataAtual = new Date();
 
-  const inicial = nome.charAt(0).toUpperCase();
-
-  let classeStatus = "pendente";
-
-  if (status === "Fazendo") {
-    classeStatus = "fazendo";
-  } else if (status === "Concluído") {
-    classeStatus = "concluido";
-  }
-
-  const data = new Date().toLocaleString("pt-BR", {
+  const dataFormatada = dataAtual.toLocaleString("pt-BR", {
     dateStyle: "short",
     timeStyle: "short"
   });
 
   try {
     await addDoc(collection(db, "tcc"), {
-      nome: nome,
-      parte: parte,
-      texto: texto,
-      status: status,
-      data: new Date()
+      nome,
+      parte,
+      texto,
+      status,
+      data: dataAtual
     });
 
-    const card = document.createElement("div");
-    card.className = "item-card";
-
-    card.innerHTML = `
-      <div class="avatar">${inicial}</div>
-
-      <div class="info">
-        <h3>${nome}</h3>
-        <p>${parte}</p>
-      </div>
-
-      <div class="preview">
-        <p>${texto}</p>
-      </div>
-
-      <div class="status-area">
-        <span class="badge ${classeStatus}">${status}</span>
-        <small>📅 ${data}</small>
-      </div>
-
-      <div class="actions">
-        <button class="edit">✏️</button>
-        <button class="delete" onclick="this.closest('.item-card').remove()">🗑️</button>
-      </div>
-    `;
-
-    lista.prepend(card);
+    criarCard(nome, parte, texto, status, dataFormatada);
 
     document.getElementById("parte").value = "";
     document.getElementById("texto").value = "";
@@ -72,8 +77,43 @@ async function salvarParte() {
     alert("Parte salva no Firebase com sucesso!");
   } catch (erro) {
     console.error("Erro ao salvar no Firebase:", erro);
-    alert("Deu erro ao salvar no Firebase. Abre o console com F12 pra ver o drama.");
+    alert("Deu erro ao salvar no Firebase. Abre o console com F12.");
+  }
+}
+
+async function carregarPartes() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "tcc"));
+
+    querySnapshot.forEach((documento) => {
+      const dados = documento.data();
+
+      let dataFormatada = "Sem data";
+
+      if (dados.data) {
+        dataFormatada = dados.data.toDate().toLocaleString("pt-BR", {
+          dateStyle: "short",
+          timeStyle: "short"
+        });
+      }
+
+      criarCard(
+        dados.nome,
+        dados.parte,
+        dados.texto,
+        dados.status,
+        dataFormatada
+      );
+    });
+  } catch (erro) {
+    console.error("Erro ao carregar dados:", erro);
+    alert("Erro ao carregar dados do Firebase.");
   }
 }
 
 window.salvarParte = salvarParte;
+
+carregarPartes();
