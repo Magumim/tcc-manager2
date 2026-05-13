@@ -174,8 +174,20 @@ button:hover {
   color: #c4c4d4;
 }
 
+.preview {
+  min-width: 0;
+}
+
 .preview p {
+  color: #c4c4d4;
   line-height: 1.5;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status-area {
